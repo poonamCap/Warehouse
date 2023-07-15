@@ -12,7 +12,6 @@ const loadProducts = ()=> {
           }
           const productsDataJson = JSON.parse(data);
           productsData = productsDataJson.products;
-          console.log(productsData);
           resolve();
         });
       });
@@ -45,4 +44,4 @@ module.exports = {
     getProduct,
     updateStock,
     addProduct
-  };
+};

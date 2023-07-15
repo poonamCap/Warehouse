@@ -1,27 +1,28 @@
 const crypto = require('crypto');
 
 const { getAllProducts, getProduct, updateStock, addProduct } = require('../service/data-operations.js');
-const getProducts = ((req, res) => {
+const getProducts = ((req, res, next) => {
     try {
         const products = getAllProducts();
         res.status(200).send(products);
     } catch (error) {
-        res.status(500).send({ error: 'Something went wrong.' });
+        next(error); // Pass the error to the error-handling middleware
     }
 })
-const getProductById = ((req, res) => {
+const getProductById = (req, res, next) => {
     try {
         const productId = req.params['productId'];
         const product = getProduct(productId);
         if (!product) {
-            return res.status(404).json({ error: 'Product not found.' });
+            const error = new Error('Product not found.');
+            return res.status(404).json({ error: error.message });
         }
         res.status(200).send(product);
     } catch (error) {
-        res.status(500).send({ error: 'Something went wrong.' });
+        next(error); // Pass the error to the error-handling middleware
     }
-})
-const updateProductStock = ((req, res) => {
+};
+const updateProductStock = ((req, res, next) => {
     try {
         const productId = req.params['productId'];
         const data = req.body;
@@ -33,11 +34,11 @@ const updateProductStock = ((req, res) => {
         const updatedProduct = updateStock(product, stock);
         res.status(200).send(updatedProduct);
     } catch (error) {
-        res.status(500).send({ error: 'Something went wrong.' });
+        next(error);
     }
 })
 
-const createProduct = ((req, res) => {
+const createProduct = ((req, res, next) => {
     try {
         const data = req.body;
         const id = crypto.randomUUID();
@@ -46,7 +47,7 @@ const createProduct = ((req, res) => {
         const newProduct = addProduct(product);
         res.status(201).send(newProduct);
     } catch (error) {
-        res.status(500).send({ error: 'Something went wrong.' });
+        next(error);
     }
 })
 

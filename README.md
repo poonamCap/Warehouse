@@ -18,3 +18,8 @@ To get the Node server running locally:
 - `routes/` - This folder contains the route definitions for our API.
 - `controllers/` - This folder contains the the functions to handle api requests.
 - `service/` - This folder contains the the functions to do business level operations.
+
+# Further things to do
+-Can add more workflows to deployment
+-Need to write integration testing and performance testing
+-Can be integrated with various systems like slack,black duck,opentelemetry
