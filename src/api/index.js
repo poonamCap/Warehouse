@@ -6,6 +6,7 @@ const YAML = require('yamljs');
 const swaggerDocument = YAML.load('./swagger.yaml');
 const productRoute = require('./routes/product-route.js')
 const { loadProducts } = require('./service/data-operations.js');
+const { errorHandler } = require('./middlewares/error-handler.js');
 
 
 const app = express();
@@ -13,7 +14,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 var corsOptions = {
-  origin: "http://localhost:8081"
+  origin: "http://localhost:8085"
 };
 
 app.use(cors(corsOptions));
@@ -21,20 +22,13 @@ app.use(cors(corsOptions));
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
 
-// parse requests of content-type - application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }));
-
-
-// simple route
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to application." });
 });
 
-// require("./app/routes/turorial.routes")(app);
 app.use("/products",productRoute);
+app.use(errorHandler);
 
-// set port, listen for requests
-// const PORT = process.env.PORT || 8085;
 loadProducts()
   .then(() => {
     app.listen(8085, () => {

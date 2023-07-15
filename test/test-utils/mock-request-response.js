@@ -5,7 +5,8 @@ const createMockRequestResponse = () => {
       send: jest.fn(),
       json: jest.fn(),
     };
-    return { req, res };
+    const next = jest.fn();
+    return { req, res, next };
   };
 
 module.exports = { createMockRequestResponse };

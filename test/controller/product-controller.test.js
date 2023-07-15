@@ -16,28 +16,29 @@ describe('Products controller', () => {
     describe('getProducts', () => {
         test('should get all products with status 200', () => {
             getAllProducts.mockReturnValueOnce(mockedProducts);
-            const { req, res } = createMockRequestResponse();
-            getProducts(req, res);
+            const { req, res, next } = createMockRequestResponse();
+            getProducts(req, res, next);
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.send).toHaveBeenCalledWith(responseProducts);
         });
-        test('should return status 500 on error', () => {
+        test('should call error middleware when an unexpected error occurs', () => {
+            const mockError = new Error('Something went wrong.');
             getAllProducts.mockImplementationOnce(() => {
-              throw new Error('Something went wrong.');
+              throw mockError;
             });
-            const { req, res } = createMockRequestResponse();
-            getProducts(req, res);
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.send).toHaveBeenCalledWith({ error: 'Something went wrong.' });
+            const { req, res, next } = createMockRequestResponse();
+            getProducts(req, res, next);
+            expect(getAllProducts).toHaveBeenCalled();
+            expect(next).toHaveBeenCalledWith(mockError);
           });
     });
     describe('getProductById', () => {
         test('should return the product with status 200 if found', () => {
             const productId = 'f74fb16e-62b2-4af1-abed-1a0516200d1b';
             getProduct.mockReturnValueOnce(mockedProduct);
-            const { req, res } = createMockRequestResponse();
+            const { req, res, next } = createMockRequestResponse();
             req.params = { productId };
-            getProductById(req, res);
+            getProductById(req, res, next);
             expect(getProduct).toHaveBeenCalledWith(productId);
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.send).toHaveBeenCalledWith(mockedProduct);
@@ -45,25 +46,28 @@ describe('Products controller', () => {
         test('should return status 404 if product is not found', () => {
             const productId = 'invalid-product-id';
             getProduct.mockReturnValueOnce(null);
-            const { req, res } = createMockRequestResponse();
+            const { req, res, next } = createMockRequestResponse();
             req.params = { productId };
             getProductById(req, res);
             expect(getProduct).toHaveBeenCalledWith(productId);
             expect(res.status).toHaveBeenCalledWith(404);
+            expect(next).not.toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith({ error: 'Product not found.' });
         });
-        test('should return status 500 on error', () => {
+        test('should call error middleware when an unexpected error occurs', () => {
             const productId = 'f74fb16e-62b2-4af1-abed-1a0516200d1b';
-            getProduct.mockImplementationOnce(() => {
-              throw new Error('Something went wrong.');
+            const mockError = new Error('Something went wrong.');
+
+            // Mock the getProduct function to throw an error
+            getProduct.mockImplementation(() => {
+            throw mockError;
             });
-            const { req, res } = createMockRequestResponse();
+            const { req, res, next } = createMockRequestResponse();
             req.params = { productId };
-            getProductById(req, res);
-            expect(getProduct).toHaveBeenCalledWith(productId);
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.send).toHaveBeenCalledWith({ error: 'Something went wrong.' });
-          });
+            getProductById(req, res, next);
+            expect(getProduct).toHaveBeenCalled();
+            expect(next).toHaveBeenCalledWith(mockError);
+        });
     });
     describe('updateProductStock', () => {
         test('should update product stock and return updated products with status 200 if product found', () => {
@@ -77,10 +81,10 @@ describe('Products controller', () => {
             }
             getProduct.mockReturnValueOnce(mockedProduct);
             updateStock.mockReturnValueOnce(updatedProductWithStock);
-            const { req, res } = createMockRequestResponse();
+            const { req, res, next } = createMockRequestResponse();
             req.params = { productId };
             req.body = { stock };
-            updateProductStock(req, res);
+            updateProductStock(req, res, next);
             expect(getProduct).toHaveBeenCalledWith(productId);
             expect(updateStock).toHaveBeenCalledWith(mockedProduct, stock);
             expect(res.status).toHaveBeenCalledWith(200);
@@ -90,29 +94,29 @@ describe('Products controller', () => {
             const productId = 'invalid-product-id';
             const stock = 10;
             getProduct.mockReturnValueOnce(null);
-            const { req, res } = createMockRequestResponse();
+            const { req, res, next } = createMockRequestResponse();
             req.params = { productId };
             req.body = { stock };
-            updateProductStock(req, res);
+            updateProductStock(req, res, next);
             expect(getProduct).toHaveBeenCalledWith(productId);
             expect(res.status).toHaveBeenCalledWith(404);
             expect(res.json).toHaveBeenCalledWith({ error: 'Product not found.' });
         });
-        test('should return status 500 on error', () => {
+        test('should call error middleware when an unexpected error occurs', () => {
+            const mockError = new Error('Something went wrong.');
             const productId = 'f74fb16e-62b2-4af1-abed-1a0516200d1b';
             const stock = 10;
             getProduct.mockReturnValueOnce(mockedProduct);
             updateStock.mockImplementationOnce(() => {
-              throw new Error('Something went wrong.');
+              throw mockError;
             });
-            const { req, res } = createMockRequestResponse();
+            const { req, res, next } = createMockRequestResponse();
             req.params = { productId };
             req.body = { stock };
-            updateProductStock(req, res);
+            updateProductStock(req, res, next);
             expect(getProduct).toHaveBeenCalledWith(productId);
             expect(updateStock).toHaveBeenCalledWith(mockedProduct, stock);
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.send).toHaveBeenCalledWith({ error: 'Something went wrong.' });
+            expect(next).toHaveBeenCalledWith(mockError);
         });
     });
     describe('createProduct', () => {
@@ -120,23 +124,23 @@ describe('Products controller', () => {
             const newId = crypto.randomUUID();
             const createdProduct = { ...mockedNewProduct, id: newId };
             addProduct.mockReturnValueOnce(createdProduct);
-            const { req, res } = createMockRequestResponse();
+            const { req, res, next } = createMockRequestResponse();
             req.body = mockedNewProduct;
-            createProduct(req, res);
+            createProduct(req, res, next);
             expect(res.status).toHaveBeenCalledWith(201);
             expect(res.send).toHaveBeenCalledWith(createdProduct);
         });
 
-        test('create product should return status 500 on error', () => {
+        test('should call error middleware when an unexpected error occurs', () => {
+            const mockError = new Error('Something went wrong.');
             addProduct.mockImplementationOnce(() => {
-              throw new Error('Something went wrong.');
+              throw mockError;
             });
-            const { req, res } = createMockRequestResponse();
+            const { req, res, next } = createMockRequestResponse();
             req.body = mockedNewProduct;
-            createProduct(req, res);
+            createProduct(req, res, next);
             expect(addProduct).toHaveBeenCalled();
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.send).toHaveBeenCalledWith({ error: 'Something went wrong.' });
+            expect(next).toHaveBeenCalledWith(mockError);
         });
     });
 
