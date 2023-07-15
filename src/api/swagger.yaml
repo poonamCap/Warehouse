@@ -1,0 +1,166 @@
+swagger: "2.0"
+info:
+  description: "Warehouse API"
+  version: "1.0.0"
+  title: "Warehouse API"
+  contact:
+    email: "abc@gmail.com"
+# basePath: ""
+tags:
+- name: "warehouse"
+  description: "warehouse api"
+schemes:
+- "http"
+paths:
+  /products:
+    get:
+      tags: [Products]
+      summary: Get all the products.
+      responses:
+        "200":
+          description: A list of products
+          schema:
+            $ref: "#/definitions/ProductsInformation"
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      tags: [Products]
+      summary: Create a product.
+      parameters:
+        - name: body
+          in: body
+          description: Create product
+          required: true
+          schema:
+            $ref: '#/definitions/CreateProductRequest'
+      responses:
+        "201":
+          description: Create a product
+          schema:
+            $ref: "#/definitions/Product"
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /products/{productId}:
+    get:
+      tags: [Products]
+      summary: Get product by id.
+      parameters:
+        - name: productId
+          in: path
+          description: ID of the product
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Get product by Id
+          schema:
+            $ref: "#/definitions/Product"
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /products/{productId}/stock:
+    put:
+      tags: [Products]
+      summary: Update stock for a product.
+      parameters:
+        - name: productId
+          in: path
+          description: ID of the product
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: Updated product object
+          required: true
+          schema:
+            $ref: '#/definitions/StockUpdateRequest'
+      responses:
+        "200":
+          description: Updated products
+          schema:
+            $ref: "#/definitions/Product"
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+definitions:
+
+  ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+
+  ProductsInformation:
+      type: object
+      properties:
+          products:
+            type: array
+            items:
+              $ref: "#/definitions/Product"
+
+  Product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: f74fb16e-62b2-4af1-abed-1a0516200d1b
+        name:
+          type: string
+          example: Dining Chair
+        price:
+          $ref: '#/definitions/Price'
+        stock:
+          type: integer
+          example: 4
+  Price:
+      type: object
+      properties:
+        amount:
+          type: number
+          example: 429.99
+        currency:
+          type: string
+          example: SEK
+
+  StockUpdateRequest:
+    type: object
+    properties:
+      stock:
+        type: integer
+        example: 4
+
+  CreateProductRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Dining Chair
+        price:
+          $ref: '#/definitions/Price'
+        stock:
+          type: integer
+          example: 4
