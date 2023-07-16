@@ -8,7 +8,6 @@ const productRoute = require('./routes/product-route.js')
 const { loadProducts } = require('./service/data-operations.js');
 const { errorHandler } = require('./middlewares/error-handler.js');
 
-
 const app = express();
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -26,7 +25,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to application." });
 });
 
-app.use("/products",productRoute);
+app.use("/products", productRoute);
 app.use(errorHandler);
 
 loadProducts()

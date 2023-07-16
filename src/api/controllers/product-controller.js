@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 
 const { getAllProducts, getProduct, updateStock, addProduct } = require('../service/data-operations.js');
+const { PRODUCT_NOT_FOUND, BAD_REQUEST} = require('../shared/constants.js');
+
 const getProducts = ((req, res, next) => {
     try {
         const products = getAllProducts();
@@ -13,9 +15,9 @@ const getProductById = (req, res, next) => {
     try {
         const productId = req.params['productId'];
         const product = getProduct(productId);
-        if (!product) {
-            const error = new Error('Product not found.');
-            return res.status(404).json({ error: error.message });
+        if (product === null) {
+            console.log('error');
+            return res.status(404).json({ error: PRODUCT_NOT_FOUND });
         }
         res.status(200).send(product);
     } catch (error) {
@@ -27,9 +29,12 @@ const updateProductStock = ((req, res, next) => {
         const productId = req.params['productId'];
         const data = req.body;
         const stock  = data.stock;
+        if (!('stock' in req.body)) {
+            return res.status(400).json({ error: BAD_REQUEST });
+        }
         const product = getProduct(productId);
         if (!product) {
-            return res.status(404).json({ error: 'Product not found.' });
+            return res.status(404).json({ error: PRODUCT_NOT_FOUND });
         }
         const updatedProduct = updateStock(product, stock);
         res.status(200).send(updatedProduct);
@@ -43,7 +48,6 @@ const createProduct = ((req, res, next) => {
         const data = req.body;
         const id = crypto.randomUUID();
         const product = { ...data, id};
-        console.log(product);
         const newProduct = addProduct(product);
         res.status(201).send(newProduct);
     } catch (error) {
