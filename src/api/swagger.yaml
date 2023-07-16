@@ -67,8 +67,8 @@ paths:
           description: Get product by Id
           schema:
             $ref: "#/definitions/Product"
-        "400":
-          description: Bad request
+        "404":
+          description: Not found
           schema:
             $ref: '#/definitions/ErrorResponse'
         "500":
@@ -100,6 +100,10 @@ paths:
           description: Bad request
           schema:
             $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
         "500":
           description: Internal server error
           schema:
@@ -123,6 +127,11 @@ definitions:
 
   Product:
       type: object
+      additionalProperties: false
+      required:
+      - name
+      - price
+      - stock
       properties:
         id:
           type: string
@@ -138,6 +147,10 @@ definitions:
           example: 4
   Price:
       type: object
+      additionalProperties: false
+      required:
+      - amount
+      - currency
       properties:
         amount:
           type: number
@@ -148,6 +161,9 @@ definitions:
 
   StockUpdateRequest:
     type: object
+    additionalProperties: false
+    required:
+      - stock
     properties:
       stock:
         type: integer
@@ -155,6 +171,11 @@ definitions:
 
   CreateProductRequest:
       type: object
+      additionalProperties: false
+      required:
+      - name
+      - price
+      - stock
       properties:
         name:
           type: string

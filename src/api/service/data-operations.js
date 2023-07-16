@@ -29,6 +29,9 @@ const updateStock = (product, updatedStock)=> {
 }
 const getProduct = (productId)=> {
     const product = productsData.find((p) => p.id == productId);
+    if (product === undefined) {
+      return null;
+    }
     return product;
 }
 const getAllProducts = () => {

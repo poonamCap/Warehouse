@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const { getProducts, getProductById, updateProductStock, createProduct } = require('../../src/api/controllers/product-controller.js');
 const { getAllProducts, getProduct, updateStock, addProduct } = require('../../src/api/service/data-operations.js');
+const { PRODUCT_NOT_FOUND } = require('../../src/api/shared/constants.js');
 const { createMockRequestResponse } = require('../test-utils/mock-request-response.js');
 const { mockedProducts, mockedProduct, mockedNewProduct } = require('../data/mockedData.js')
 const { responseProducts } = require('../data/responseData.js')
@@ -52,7 +53,7 @@ describe('Products controller', () => {
             expect(getProduct).toHaveBeenCalledWith(productId);
             expect(res.status).toHaveBeenCalledWith(404);
             expect(next).not.toHaveBeenCalled();
-            expect(res.json).toHaveBeenCalledWith({ error: 'Product not found.' });
+            expect(res.json).toHaveBeenCalledWith({ error: PRODUCT_NOT_FOUND });
         });
         test('should call error middleware when an unexpected error occurs', () => {
             const productId = 'f74fb16e-62b2-4af1-abed-1a0516200d1b';
@@ -100,7 +101,7 @@ describe('Products controller', () => {
             updateProductStock(req, res, next);
             expect(getProduct).toHaveBeenCalledWith(productId);
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Product not found.' });
+            expect(res.json).toHaveBeenCalledWith({ error: PRODUCT_NOT_FOUND });
         });
         test('should call error middleware when an unexpected error occurs', () => {
             const mockError = new Error('Something went wrong.');

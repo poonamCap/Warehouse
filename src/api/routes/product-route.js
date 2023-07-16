@@ -3,11 +3,12 @@ const express = require('express');
 const router = express.Router();
 const  {
     getProducts, updateProductStock, getProductById, createProduct
-} = require('../controllers/product-controller.js')
+} = require('../controllers/product-controller.js');
+const { validateCreateProductRequest, validateRequest } = require('../middlewares/express-validation.js');
 
 router.get('/', getProducts);
 router.get('/:productId', getProductById);
-router.post('/', createProduct);
+router.post('/', validateCreateProductRequest, validateRequest, createProduct);
 router.put('/:productId/stock', updateProductStock);
 
 module.exports = router;
